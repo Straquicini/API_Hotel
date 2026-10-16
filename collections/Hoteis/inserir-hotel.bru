@@ -1,0 +1,20 @@
+meta {
+  name: inserir-hotel
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://127.0.0.1:5000/hoteis/flu
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "nome": "Hotel Fluminense",
+    "estrelas": 3.5,
+    "diaria": 99.99,
+    "cidade": "Rio de Janeiro"
+  }
+}
