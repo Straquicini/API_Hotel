@@ -1,0 +1,20 @@
+from flask_restful import Resource, reqparse
+from models.user import UserModel
+
+class User(Resource):
+
+    def get(self, username):
+        user = UserModel.find_user()
+        if user:
+            return user.json(), 200
+        return { "message": "User not found" }, 404
+
+    def delete(self, username):
+        user = UserModel.find_user()
+        if user:
+            try: 
+                user.delete_user()
+                return { "message": "User deleted"}, 200
+            except:
+                return { "message": "Internal error ..."}, 500 # Internal error
+        return {"message": "User not found"}, 404
