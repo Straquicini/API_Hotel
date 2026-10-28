@@ -1,5 +1,7 @@
 from flask_restful import Resource, reqparse
 from models.user import UserModel
+from hmac import compare_digest
+from flask_jwt_extended import create_access_token
 
 class User(Resource):
 
@@ -18,3 +20,37 @@ class User(Resource):
             except:
                 return { "message": "Internal error ..."}, 500 # Internal error
         return {"message": "User not found"}, 404
+
+class UserRegister(Resource):
+    argumentos = reqparse.RequestParser()
+    argumentos.add_argument("username", type=str, required=True, help="Username obrigatório")
+    argumentos.add_argument("password", type=float, required=True, help="Password obrigatório")
+
+    def post(self, username):
+        dados = UserRegister.argumentos.parse_args() # Dicionário
+        user = UserModel.find_user(username)
+        if user:
+                return { "message": "User with this id already exists" }
+        try:
+            new_user = UserModel(**dados)
+            new_user.save_user()
+            return new_user.json(), 200
+        except:
+            return { "message": "Internal error ..."}, 500 # Internal error
+
+class UserLogin(Resource):
+    argumentos = reqparse.RequestParser()
+    argumentos.add_argument("username", type=str, required=True, help="Username obrigatório")
+    argumentos.add_argument("password", type=float, required=True, help="Password obrigatório")
+
+    def post(self):
+        dados = UserLogin.argumentos.parse_args()
+        user = UserModel.find_user(dados["username"])
+
+        if user and compare_digest(user.password, dados["password"]):
+            token = create_access_token(identity=user.username)
+            return { "access_token": token }
+        return { "message": "User or password invalid!" }, 401
+
+class UserLogout(Resource):
+    ...
