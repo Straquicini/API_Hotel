@@ -24,24 +24,24 @@ class User(Resource):
 class UserRegister(Resource):
     argumentos = reqparse.RequestParser()
     argumentos.add_argument("username", type=str, required=True, help="Username obrigatório")
-    argumentos.add_argument("password", type=float, required=True, help="Password obrigatório")
+    argumentos.add_argument("password", type=str, required=True, help="Password obrigatório")
 
-    def post(self, username):
+    def post(self):
         dados = UserRegister.argumentos.parse_args() # Dicionário
-        user = UserModel.find_user(username)
+        user = UserModel.find_user(dados["username"])
         if user:
                 return { "message": "User with this id already exists" }
         try:
             new_user = UserModel(**dados)
             new_user.save_user()
-            return new_user.json(), 200
+            return { "message": "User created with success"}
         except:
             return { "message": "Internal error ..."}, 500 # Internal error
 
 class UserLogin(Resource):
     argumentos = reqparse.RequestParser()
     argumentos.add_argument("username", type=str, required=True, help="Username obrigatório")
-    argumentos.add_argument("password", type=float, required=True, help="Password obrigatório")
+    argumentos.add_argument("password", type=str, required=True, help="Password obrigatório")
 
     def post(self):
         dados = UserLogin.argumentos.parse_args()
@@ -49,7 +49,7 @@ class UserLogin(Resource):
 
         if user and compare_digest(user.password, dados["password"]):
             token = create_access_token(identity=user.username)
-            return { "access_token": token }
+            return { "access_token": token }, 200
         return { "message": "User or password invalid!" }, 401
 
 class UserLogout(Resource):

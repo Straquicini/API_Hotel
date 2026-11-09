@@ -18,7 +18,7 @@ class UserModel(bd.Model):
         }
 
     @classmethod
-    def find_hotel(cls, username):
+    def find_user(cls, username):
         user = cls.query.filter_by(username=username).first()
         if user:
             return user
